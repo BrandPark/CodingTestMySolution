@@ -41,17 +41,14 @@ public class MenuRenewal {
                 if(max <= entry.getValue() && entry.getValue() >= 2){
                     max = entry.getValue();
                     answer.add(entry.getKey());
-                    continue;
                 }
-                break;
+                else break;
             }
         }
 
         //answer 사전 순(오름차순) 정렬
         Collections.sort(answer);
-        String[] ans = new String[answer.size()];
-        answer.toArray(ans);
-        return ans;
+        return answer.stream().sorted().toArray(String[]::new);
     }
 
     private void dfs(int n, int count, int index, char[] chars, boolean[] visited, HashMap<String, Integer> map){
