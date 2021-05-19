@@ -1,9 +1,11 @@
+package kakao.blind_2021;
 
 /*
 * 카카오 2021 블라인드 채용 _ 신규 아이디 추천
+* 난이도 : 1
 * link : https://programmers.co.kr/learn/courses/30/lessons/72410
 * */
-public class Kakao_2021B_NewIdRecommend {
+public class NewIdRecommend {
     public String solution(String new_id) {
         //1. 모든 대문자를 대응되는 소문자로 치환.
         new_id = new_id.toLowerCase();
@@ -39,6 +41,5 @@ public class Kakao_2021B_NewIdRecommend {
         }
 
         return answer.toString();
-
     }
 }
