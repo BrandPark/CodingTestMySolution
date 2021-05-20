@@ -3,72 +3,72 @@ package kakao.blind_2021;
 import java.util.*;
 
 /*
-* 카카오 2021 블라인드 채용 순위 검색 문제
-* 난이도 : 2
-* link : https://programmers.co.kr/learn/courses/30/lessons/72412
+* 카카오 2021 블라인드 채용 메뉴 리뉴얼 문제
+* 난이도 : 1
+* link : https://programmers.co.kr/learn/courses/30/lessons/72411
 * */
 public class MenuRenewal {
-    //개발언어 : cpp, java, python
-    //지원직군 : backend, frontend
-    //경력구분 : junior, senior
-    //소울푸드 : chicken, pizza
-    //지원조건에 해당하고 원하는 점수 이상의 지원자가 몇명인지 알아내는 문제
-    //1<= info.length <= 50,000
-    //info[i] = "개발언어 직군 경력 소울푸드 점수"
-    //1<= score <= 100,000
-    //1<= query.length <= 100,000
-    //query[i] = "개발언어 and 직군 and 경력 and 소울푸드 최소점수", 와일드카드(-) 가능
+    public String[] solution(String[] orders, int[] course) {
+        //손님이 가장 많이 함께 주문한 단품메뉴들을 코스요리 메뉴로 구성
+        //코스요리 메뉴는 최소 2가지 이상의 단품으로 구성
+        // 최소 2명이상의 손님으로부터 주문된 단품조합만 코스요리 후보
+        // 2<= orders.length <= 10
+        // 2<= orders[i].size() <= 10, 대문자, 같은 알파벳 중복x
+        // 1<= course.length <= 10
+        // 2<= course[i] <= 10, 오름차순 정렬, 같은 값 중복x
+        // @Return : 오름차순 정렬, 조건에 맞는 메뉴 구성이 여러 개라면 모두 담는다.
 
-    private static HashMap<String, List<Integer>> infoMap = new HashMap<>();
-    private static String[] langs = {"cpp", "java", "python", "-"};
-    private static String[] poss = {"backend", "frontend", "-"};
-    private static String[] careers = {"junior", "senior", "-"};
-    private static String[] foods = {"chicken", "pizza", "-"};
+        List<String> answer = new ArrayList<>();
 
-    public int[] solution(String[] info, String[] query) {
-        int[] answer = new int[query.length];
-
-        //모든 조합의 경우를 infoMap에 담는다.
-        for(String l : langs)
-            for(String p : poss)
-                for(String c : careers)
-                    for(String f : foods)
-                        infoMap.put(l+p+c+f, new ArrayList<>());
-
-        //for in in info
-        for(String in : info){
-            in = in.replaceAll("(\\w+) (\\w+) (\\w+) (\\w+)", "$1$2$3$4");
-            String[] inArr = in.split(" ");
-            //map에서 해당하는 조건을 찾아 점수를 넣는다.
-            infoMap.get(inArr[0]).add(Integer.parseInt(inArr[1]));
-        }
-
-        //for q in query
-        for(int i=0;i<query.length;i++){
-            String q = query[i].replaceAll(" and ", "");
-            String[] qArr = q.split(" ");
-            //infoMap에서 조건에 해당하는 학생들의 점수 리스트를 가져와서 오름차순 정렬한다.
-            List<Integer> scoreList = infoMap.get(qArr[0]);
-            Collections.sort(scoreList);
-
-            //이진탐색으로 요구하는 점수 이상의 학생 수를 센다.
-            int index = Collections.binarySearch(scoreList, Integer.parseInt(qArr[1]));
-
-            index = index < 0 ? Math.abs(index + 1) : index;
-
-            int minValue = scoreList.get(index--);
-            while(index >= 0){
-                if(scoreList.get(index) < minValue)
-                    break;
-                minValue = scoreList.get(index);
-                index--;
+        //for n in course
+        for(int n : course){
+            HashMap<String, Integer> map = new HashMap<>();
+            //for order in orders
+            for(String order : orders){
+                //order에서 n만큼 고르는 조합의 경우들을 map : HashMap<String, Integer>에 담는다.
+                //Integer: 개수, String: n개로 이루어진 단품 조합
+                char[] orderChars = order.toCharArray();
+                Arrays.sort(orderChars);
+                boolean[] visited = new boolean[orderChars.length];
+                dfs(n, 0, 0, orderChars, visited, map);
             }
+            //map에서 Value(개수)가 가장 높은 Key를 뽑고, 같은 개수를 가진 모든 key를 answer에 추가
+            List<Map.Entry<String, Integer>> entryList = new LinkedList<>(map.entrySet());
+            Collections.sort(entryList, (o1, o2) -> o2.getValue().compareTo(o1.getValue()));
 
-            int result = scoreList.size() - index;
-
-            answer[i] = result;
+            int max = 0;
+            for(Map.Entry<String, Integer> entry : entryList){
+                if(max <= entry.getValue() && entry.getValue() >= 2){
+                    max = entry.getValue();
+                    answer.add(entry.getKey());
+                }
+                else break;
+            }
         }
 
-        return answer;
+        //answer 사전 순(오름차순) 정렬
+        Collections.sort(answer);
+        return answer.stream().sorted().toArray(String[]::new);
+    }
+
+    private void dfs(int n, int count, int index, char[] chars, boolean[] visited, HashMap<String, Integer> map){
+        if(count == n){
+            StringBuilder tmp = new StringBuilder();
+            for(int i=0;i<visited.length;i++){
+                if(visited[i]){
+                    tmp.append(chars[i]);
+                }
+            }
+            map.put(tmp.toString(), map.getOrDefault(tmp.toString(), 0) + 1);
+            return;
+        }
+
+        for(int i=index;i<chars.length;i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+                dfs(n, count + 1, i + 1, chars, visited, map);
+                visited[i] = false;
+            }
+        }
     }
 }
