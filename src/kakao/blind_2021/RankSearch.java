@@ -1,9 +1,6 @@
 package kakao.blind_2021;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 /*
  * 카카오 2021 블라인드 채용 _ 순위검색 문제
@@ -49,6 +46,11 @@ public class RankSearch {
             }
         }
 
+        //lookupMap의 점수리스트를 모두 정렬한다.
+        for(Map.Entry<String, List<Integer>> entry : lookupMap.entrySet()){
+            Collections.sort(entry.getValue());
+        }
+
         int[] answer = new int[query.length];
         //for q in query
         for (int i = 0; i < query.length; i++) {
@@ -61,9 +63,8 @@ public class RankSearch {
                 answer[i] = 0;
                 continue;
             }
-            //비어있지 않다면 점수리스트를 정렬하고 이진탐색으로 조건의 점수이상의 학생 수를 알아낸다.
+            //비어있지 않다면 이진탐색으로 조건의 점수이상의 학생 수를 알아낸다.
             int score = Integer.parseInt(qArr[1]);
-            Collections.sort(scoreList);
             int index = Collections.binarySearch(scoreList, score);
             if (index < 0) {
                 index = Math.abs(index + 1);
