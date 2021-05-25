@@ -74,11 +74,12 @@ public class ShareTaxiFare_Dijkstra {
         // (start -> sp3)의 비용보다 (start -> sp2)+(sp2 -> sp3)의 비용이 작다면 업데이트하고 큐에 다음 간선을 넣는다.
         while(!pq.isEmpty()){
             Edge curEdge = pq.poll();
-            // 기록되어있는 (start -> sp2)의 비용보다 (s1 -> sp2)의 비용이 더 크다면
-            // sp2는 이미 한번 방문했다는 의미이기 때문에 queue에 넣을 필요없다.
-            if(costs[curEdge.sp2] < curEdge.cost) continue;
+
+            // 이미
+            if(costs[curEdge.sp2] < curEdge.cost)
+                continue;
             for(Edge nextEdge : graph.get(curEdge.sp2)){
-                if(costs[nextEdge.sp2] > costs[nextEdge.sp2] + nextEdge.cost){
+                if(costs[nextEdge.sp2] > costs[curEdge.sp2] + nextEdge.cost){
                     costs[nextEdge.sp2] = costs[curEdge.sp2] + nextEdge.cost;
                     pq.add(new Edge(curEdge.sp2, nextEdge.sp2, costs[curEdge.sp2] + nextEdge.cost));
                 }
@@ -88,17 +89,15 @@ public class ShareTaxiFare_Dijkstra {
         }
 
     }
-    private static class Edge implements Comparable<Edge>{
+    private static class Edge implements Comparable<Edge> {
         private final int sp1, sp2, cost;
-
         public Edge(int sp1, int sp2, int cost){
             this.sp1 = sp1;
             this.sp2 = sp2;
             this.cost = cost;
         }
-
         @Override
-        public int compareTo(Edge o) {
+        public int compareTo(Edge o){
             return cost - o.cost;
         }
     }
