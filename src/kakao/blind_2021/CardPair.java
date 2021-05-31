@@ -1,5 +1,8 @@
 package kakao.blind_2021;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /*
  * 카카오 2021 블라인드 채용 _ 광고 삽입문제
  * 알고리즘 : 완전탐색
@@ -18,9 +21,45 @@ public class CardPair {
         // 1) board에 등장한 캐릭터의 종류별 개수와 좌표를 적는다.
         // 2) 1)의 산출물을 사용하여 총 8개 캐릭터카드 쌍의 제거 순서의 경우의 수를 모두 구한다.
         // 3) 제거 순서의 경우의 수 중 하나를 뽑아 차례대로 제거해야 하는데, 이 때 제거할 종류의 카드가 board에 2장 이상이기 때문에 어느것을 먼저 제거할 지 정해야한다.
-        // 3-1) 1)의 산출물을 사용하여 카드 종류별 제거 순서의 경우의 수를 정한다.
+        // 3-1) 1)의 을 사용하여 카드 종류별 제거 순서의 경우의 수를 정한다.
         // 4) 제거 순서의 경우의 수 중 하나를 뽑아 차례대로 제거한다. 제거할 땐 해당 카드를 3-1)의 결과물에서 가능한 모든 경우의 수를 계산해 답을 구한다.
+
+
+        // board에 등장하는 캐릭터카드를 인덱스로 좌표를 담는다.
+        List<List<Pair>> cardLocations = new ArrayList<>();
+        for(int i=0;i<7;i++){
+            cardLocations.add(new ArrayList<>());
+        }
+
+        for(int i=0;i<4;i++){
+            for(int j=0;j<4;j++){
+                if(board[i][j] == 0)
+                    continue;
+                cardLocations.get(board[i][j]).add(new Pair(i,j));
+            }
+        }
+
+        // 보드에 나온 카드 쌍들의 제거 순서 경우의 수를 모두 구한다.
+        int[] countArray = new int[7];
+
+        int cardPairAllCount = 0;
+        for(int i=0;i<7;i++){
+            int cardPairCount = cardLocations.get(i).size() / 2;
+            countArray[i] = cardPairCount;
+            cardPairAllCount += cardPairCount;
+        }
+
+        List<String> comb = new ArrayList<>();
+        StringBuilder tmp = new StringBuilder();
+        boolean[] visited = new boolean[7];
+        // initAllComb(0, cardPairAllCount, visited, comb);
+
         return -1;
+    }
+
+    private static class Pair{
+        private int y, x;
+        public Pair(int y, int x){this.y = y; this.x = x;}
     }
 }
 
