@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /*
- * 카카오 2021 블라인드 채용 _ 광고 삽입문제
+ * 카카오 2021 블라인드 채용 _ 카드 짝 맞추기
  * 알고리즘 : 완전탐색
  * 난이도 : 3
  * link : https://programmers.co.kr/learn/courses/30/lessons/72415
@@ -23,7 +23,6 @@ public class CardPair {
         // 3) 제거 순서의 경우의 수 중 하나를 뽑아 차례대로 제거해야 하는데, 이 때 제거할 종류의 카드가 board에 2장 이상이기 때문에 어느것을 먼저 제거할 지 정해야한다.
         // 3-1) 1)의 을 사용하여 카드 종류별 제거 순서의 경우의 수를 정한다.
         // 4) 제거 순서의 경우의 수 중 하나를 뽑아 차례대로 제거한다. 제거할 땐 해당 카드를 3-1)의 결과물에서 가능한 모든 경우의 수를 계산해 답을 구한다.
-
 
         // board에 등장하는 캐릭터카드를 인덱스로 좌표를 담는다.
         List<List<Pair>> cardLocations = new ArrayList<>();
