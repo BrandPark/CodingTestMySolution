@@ -12,32 +12,34 @@ public class StringZip {
         // s는 알파벳 소문자
         // 앞에서 부터 잘라서 압축
         // solution : 자르는 단위는 1부터 s의 길이 만큼이기 때문에 모두 해보아야 한다. 즉, 완전 탐색이다. 문제의 특징은 자르는 단위를 정했다면 문자열 s를 앞에서부터 단위 개수의 문자열을 뽑고 그 뒤의 문자열의 앞에서부터 같은 문자열로 시작하는지 검사한다는 것이다. 검사하는 방식이 동일 하기 때문에 재귀호출 방식(백 트래킹)으로 풀 수 있다.
-        int answer = 0;
-        for(int spLen=1; spLen<s.length();spLen++){
-            answer = Math.min(answer, zipString("", s, spLen, 1, new StringBuilder()));
+        int answer = Integer.MAX_VALUE;
+        for(int spLen=1; spLen<s.length()+1;spLen++){
+            answer = Math.min(answer, zipString("", s, spLen, 1).length());
         }
 
         return answer;
     }
 
-    private int zipString(String pre, String post, int spLen, int count, StringBuilder sb){
+    private String zipString(String pre, String post, int spLen, int count){
+        // post가 pre보다 짧으면 tmp에 count + pre 와 post를 넣고 tmp.length()리턴
         if(post.length() < pre.length()){
-            String s = count > 1 ? count + post : post;
-            sb.append(s);
-            return sb.length();
+            if(count > 1)
+                return count + pre + post;
+            else
+                return pre + post;
         }
-        if(post.startsWith(pre)){
-            zipString(pre, post.substring(spLen) , spLen, count+1, sb);
+
+        // post가 pre로 시작하면
+        if(!pre.equals("") && post.startsWith(pre)){
+            return zipString(pre, post.substring(spLen), spLen, count + 1);
         }
-        else {
-            if(count > 1){
-                sb.append(count + pre);
-            }
-            else{
-                sb.append(pre);
-            }
-            zipString(post.substring(0,spLen), post.substring(spLen), spLen, 1, sb);
+
+        // post가 pre로 시작하지 않으면
+        else{
+            if(count > 1)
+                return count + pre + zipString(post.substring(0, spLen), post.substring(spLen), spLen, 1);
+            else
+                return pre + zipString(post.substring(0,spLen), post.substring(spLen), spLen, 1);
         }
-        return sb.length();
     }
 }
