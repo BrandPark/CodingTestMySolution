@@ -1,7 +1,11 @@
 package kakao.blind_2020;
 
-import java.util.Arrays;
-
+/*
+ * 카카오 2020 블라인드 채용 _ 자물쇠와 열쇠
+ * 알고리즘 : 단순 구현
+ * 난이도 : 3
+ * link : https://programmers.co.kr/learn/courses/30/lessons/60059
+ * */
 public class LockAndKey {
     // 자물쇠 N * N, 키 M * M
     // 3<= M <= N <= 20
