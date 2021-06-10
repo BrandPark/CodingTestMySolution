@@ -1,8 +1,6 @@
 package kakao.blind_2020;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /*
  * 카카오 2020 블라인드 채용 _ 기둥과 보
@@ -25,8 +23,8 @@ public class PillaAndBo {
     // 보는 한쪽 끝 부분이 기둥 위에 있거나, 양쪽 끝 부분이 다른 보와 동시에 연결되어 있어야 한다.
     // 작업을 수행한 결과가 조건을 만족하지 않으면 작업은 무시된다.
     // answer은 order by x asc, y asc, 기둥 우선
-    private static int BO = 1, int PILLAR = 0;
-    private static int INST = 1, int DEL = 0;
+    private static int BO = 1, PILLAR = 0;
+    private static int INST = 1, DEL = 0;
     public int[][] solution(int n, int[][] build_frame) {
         // n까지 인덱스로 가질수 있는 map[][]을 만든다.
         int[][] map = new int[n+1][n+1];
@@ -71,19 +69,34 @@ public class PillaAndBo {
         for(int y = 0; y<=n;y++){
             for(int x = 0; x<=n;x++){
                 if(map[y][x] != -1){
-                    int[] arch = {x, y, map[y][x]};
-
+                    int[] arch = new int[]{x, y, map[y][x]};
+                    answer.add(arch);
                 }
             }
         }
+        Collections.sort(answer, new Comparator<int[]>(){
+            @Override
+            public int compare(int[] o1, int[] o2){
+                if(o1[0] == o2[0]){
+                    if(o1[1] == o2[1]){
+                        return o1[2] - o2[2];
+                    }
+                    return o1[1] - o2[1];
+                }
+                return o1[0] - o2[0];
+            }
+        });
 
-        return answer;
+        return answer.toArray(int[][] :: new);
     }
     private boolean isSure(int y, int x, int what, int[][] map){
+        int n = map.length - 1;
         if(what == BO){
-            // y-1, x+1 또는 y-1, x-1에 기둥이 있거나, y, x-1과 y,x+1에 보가 있어야한다.
-            if((map[y-1][x+1] == PILLAR || map[y-1][x-1] == PILLAR)
-                    || (map[y][x-1] == BO && map[y][x+1] == BO))
+            // y-1, x 또는 y-1, x+1에 기둥이 있거나, y, x-1과 y,x+1에 보가 있어야한다.
+            if(((!outOfBound(y-1, x, n) && map[y-1][x] == PILLAR)
+                    || (!outOfBound(y-1,x+1,n) && map[y-1][x+1] == PILLAR))
+                    || ((!outOfBound(y,x-1,n) && map[y][x-1] == BO)
+                    && (!outOfBound(y,x+1,n) && map[y][x+1] == BO)))
                 return true;
             return false;
         }
@@ -93,5 +106,8 @@ public class PillaAndBo {
                 return true;
             return false;
         }
+    }
+    private boolean outOfBound(int y, int x, int n){
+        return y<0||y>n||x<0||x>n;
     }
 }
