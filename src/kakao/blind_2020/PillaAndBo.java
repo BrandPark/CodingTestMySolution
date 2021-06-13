@@ -101,8 +101,8 @@ public class PillaAndBo {
             return false;
         }
         else {
-            // y-1,x에 기둥이 있거나, y가 0이어야 한다.
-            if(y == 0 || map[y-1][x] == PILLAR)
+            // y-1,x에 기둥이 또는 바닥, 또는 y, x-1에 보가 있어야한다.
+            if(y == 0 || map[y-1][x] == PILLAR || (!outOfBound(y, x-1, n) && map[y][x-1] == BO))
                 return true;
             return false;
         }
