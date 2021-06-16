@@ -23,53 +23,73 @@ public class PillaAndBo {
     // 보는 한쪽 끝 부분이 기둥 위에 있거나, 양쪽 끝 부분이 다른 보와 동시에 연결되어 있어야 한다.
     // 작업을 수행한 결과가 조건을 만족하지 않으면 작업은 무시된다.
     // answer은 order by x asc, y asc, 기둥 우선
-    private static int BO = 1, PILLAR = 0;
-    private static int INST = 1, DEL = 0;
+    private static int[][] map;
     public int[][] solution(int n, int[][] build_frame) {
         // n까지 인덱스로 가질수 있는 map[][]을 만든다.
-        int[][] map = new int[n+1][n+1];
-        for(int[] m : map){
-            Arrays.fill(m, -1);
-        }
+        map = new int[n+1][n+1];
 
         // build_frame에서 하나 꺼낸다.
         for(int[] bf : build_frame){
-            int x = bf[0], y = bf[1], what = bf[2], how = bf[3];
+            int x = bf[0], y = bf[1], isBo = bf[2], isSet = bf[3];
 
             // 설치
-            if(how == INST) {
-                if(isSure(y, x, what, map)){
-                    if(map[y][x] > -1){
-                        map[y][x] |= what;
-                    }else{
-                        map[y][x] = what;
-                    }
+            if(isSet == 1){
+                // 설치가능하다면 설치
+                // 비트연산자를 활용하여, 보는 10, 기둥은 01로 한다.
+                if(isSure(y, x, isBo+1))  {
+                    if(map[y][x] == 0)
+                        map[y][x] = isBo + 1;
+                    else
+                        map[y][x] |= isBo + 1;
                 }
             }
             // 삭제
             else {
-                // 기둥
-                if(what == PILLAR) {
-                    // 제거하고
-                    if(map[y][x] > -1) {
-                        map[y][x] ^= what+1;
-                        // y+1, x에 있는 것이 괜찮은지 확인한다.
-                        // 괜찮지 않다면 다시 돌려 놓는다.
-                        if(!isSure(y+1, x, what, map)){
-                            map[y][x] |= what+1;
+                // 삭제할게 없다면 다음으로,
+                if(map[y][x] == 0)
+                    continue;
+
+                // 기둥 삭제 시, 기둥이 있다면
+                if (isBo == 0 && ((map[y][x] ^ isBo+1) < map[y][x])){
+
+                    // 삭제를 한다.
+                    map[y][x] ^= isBo+1;
+
+                    // (y+1,x), (y+1, x-1)의 구조물에 이상이 있다면 rollback
+                    if(!outOfBound(y+1, x, n))
+                        if(!isSure(y+1, x, map[y+1][x])){
+                            map[y][x] |= isBo+1;
+                            continue;
                         }
-                    }
+                    if(!outOfBound(y+1, x-1, n))
+                        if(!isSure(y+1, x-1, map[y+1][x-1])){
+                            map[y][x] |= isBo+1;
+                            continue;
+                        }
+
                 }
-                // 보
-                else {
-                    // 제거하고
-                    if(map[y][x] > -1){
-                        map[y][x] ^= what+1;
-                        // y, x-1과 y, x+1에 있는 것이 모두 괜찮은지 확인한다.
-                        //괜찮지 않다면 다시 돌려 놓는다.
-                        if(!isSure(y, x-1, what, map) || !isSure(y, x+1, what, map))
-                            map[y][x] |= what+1;
-                    }
+
+                // 보 삭제 시
+                else if(isBo == 1 && ((map[y][x] ^ isBo+1) < map[y][x])){
+                    // 삭제를 한다.
+                    map[y][x] ^= isBo+1;
+
+                    // x, x-1, x+1의 구조물에 이상이 있다면 rollback
+                    if(!outOfBound(y, x, n))
+                        if(!isSure(y, x, map[y][x])){
+                            map[y][x] |= isBo+1;
+                            continue;
+                        }
+                    if(!outOfBound(y, x-1, n))
+                        if(!isSure(y, x-1, map[y][x-1])){
+                            map[y][x] |= isBo+1;
+                            continue;
+                        }
+                    if(!outOfBound(y, x+1, n))
+                        if(!isSure(y, x+1, map[y][x+1])){
+                            map[y][x] |= isBo+1;
+                            continue;
+                        }
                 }
             }
         }
@@ -78,9 +98,12 @@ public class PillaAndBo {
         List<int[]> answer = new ArrayList<>();
         for(int y = 0; y<=n;y++){
             for(int x = 0; x<=n;x++){
-                if(map[y][x] != -1){
-                    int[] arch = new int[]{x, y, map[y][x]};
-                    answer.add(arch);
+                if(map[y][x] == 1 || map[y][x] == 2){
+                    answer.add(new int[]{x, y, map[y][x] - 1});
+                }
+                else if(map[y][x] == 3){
+                    answer.add(new int[]{x, y, 0});
+                    answer.add(new int[]{x, y, 1});
                 }
             }
         }
@@ -99,30 +122,54 @@ public class PillaAndBo {
 
         return answer.toArray(int[][] :: new);
     }
-    private boolean isSure(int y, int x, int what, int[][] map){
-        int n = map.length - 1;
-        if(what == BO+1){
-            // y-1, x 또는 y-1, x+1에 기둥이 있거나, y, x-1과 y,x+1에 보가 있어야한다.
-            if(((!outOfBound(y-1, x, n) && isPillar(y-1,x,map))
-                    || (!outOfBound(y-1,x+1,n) && isPillar(y-1,x+1,map)))
-                    || ((!outOfBound(y,x-1,n) && isBo(y,x-1,map))
-                    && (!outOfBound(y,x+1,n) && isBo(y,x+1,map))))
-                return true;
-            return false;
-        }
-        else {
-            // y-1,x에 기둥이 또는 바닥, 또는 y, x-1에 보가 있어야한다.
-            if(y == 0 || isPillar(y-1,x,map) || (!outOfBound(y, x-1, n) && isBo(y,x-1,map)))
-                return true;
-            return false;
-        }
-    }
 
-    private boolean isBo(int y, int x, int[][] map){
-        return (map[y][x] ^ (BO+1)) < 3;
+    private boolean isSure(int y, int x, int what){
+        int n = map.length - 1;
+
+        // 보(10)라면,
+        if(what == 2 && !isSureBo(y, x, n)){
+            return false;
+        }
+
+        // 기둥(01)이라면,
+        else if(what == 1 && !isSureGi(y, x, n)){
+            return false;
+        }
+        // 둘 다 라면,
+        else if(what == 3 && (!isSureBo(y, x, n) || isSureGi(y, x, n))){
+            return false;
+        }
+
+        return true;
     }
-    private boolean isPillar(int y, int x, int[][] map){
-        return (map[y][x] ^ (PILLAR+1)) < 3;
+    private boolean isSureBo(int y, int x, int n){
+        // 한쪽 끝 부분이 기둥(01)위에 있거나, 양쪽 끝에 보가 있다면, 참
+        if(!outOfBound(y-1, x, n))
+            if((map[y-1][x] ^ 1) > map[y-1][x])
+                return true;
+        if(!outOfBound(y-1, x+1, n))
+            if((map[y-1][x+1] ^ 1) > map[y-1][x+1])
+                return true;
+        if(!outOfBound(y, x-1, n) && !outOfBound(y, x+1, n)){
+            if(((map[y][x-1] ^ 2) > map[y][x-1]) && ((map[y][x+1] ^ 2) > map[y][x+1]))
+                return true;
+        }
+        return false;
+    }
+    private boolean isSureGi(int y, int x, int n){
+        // 밑에 무언가 있어야한다.
+        if(y==0)
+            return true;
+        if(!outOfBound(y, x-1, n))
+            if((map[y][x-1] ^ 2) > map[y][x-1])
+                return true;
+        if(!outOfBound(y, x, n))
+            if((map[y][x] ^ 2) > map[y][x])
+                return true;
+        if(!outOfBound(y-1, x, n))
+            if((map[y-1][x] ^ 1) > map[y-1][x])
+                return true;
+        return false;
     }
     private boolean outOfBound(int y, int x, int n){
         return y<0||y>n||x<0||x>n;
