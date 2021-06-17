@@ -50,7 +50,7 @@ public class PillaAndBo {
                     continue;
 
                 // 기둥 삭제 시, 기둥이 있다면
-                if (isBo == 0 && ((map[y][x] ^ isBo+1) < map[y][x])){
+                if (isBo == 0 && isGi(y, x)){
 
                     // 삭제를 한다.
                     map[y][x] ^= isBo+1;
@@ -70,7 +70,7 @@ public class PillaAndBo {
                 }
 
                 // 보 삭제 시
-                else if(isBo == 1 && ((map[y][x] ^ isBo+1) < map[y][x])){
+                else if(isBo == 1 && isBo(y, x)){
                     // 삭제를 한다.
                     map[y][x] ^= isBo+1;
 
@@ -126,34 +126,29 @@ public class PillaAndBo {
     private boolean isSure(int y, int x, int what){
         int n = map.length - 1;
 
-        // 보(10)라면,
-        if(what == 2 && !isSureBo(y, x, n)){
-            return false;
+        switch(what){
+            case 0:
+                return true;
+            case 1:
+                return isSureGi(y, x, n);
+            case 2:
+                return isSureBo(y, x, n);
+            case 3:
+                return isSureBo(y, x, n) && isSureGi(y, x, n);
         }
 
-        // 기둥(01)이라면,
-        else if(what == 1 && !isSureGi(y, x, n)){
-            return false;
-        }
-        // 둘 다 라면,
-        else if(what == 3 && (!isSureBo(y, x, n) || isSureGi(y, x, n))){
-            return false;
-        }
-
-        return true;
+        return false;
     }
     private boolean isSureBo(int y, int x, int n){
         // 한쪽 끝 부분이 기둥(01)위에 있거나, 양쪽 끝에 보가 있다면, 참
         if(!outOfBound(y-1, x, n))
-            if((map[y-1][x] ^ 1) > map[y-1][x])
+            if(isGi(y-1, x))
                 return true;
         if(!outOfBound(y-1, x+1, n))
-            if((map[y-1][x+1] ^ 1) > map[y-1][x+1])
+            if(isGi(y-1, x+1))
                 return true;
-        if(!outOfBound(y, x-1, n) && !outOfBound(y, x+1, n)){
-            if(((map[y][x-1] ^ 2) > map[y][x-1]) && ((map[y][x+1] ^ 2) > map[y][x+1]))
-                return true;
-        }
+        if(!outOfBound(y, x-1, n) && !outOfBound(y, x+1, n))
+            return (isBo(y, x-1) && isBo(y, x+1));
         return false;
     }
     private boolean isSureGi(int y, int x, int n){
@@ -161,17 +156,25 @@ public class PillaAndBo {
         if(y==0)
             return true;
         if(!outOfBound(y, x-1, n))
-            if((map[y][x-1] ^ 2) > map[y][x-1])
+            if(isBo(y, x-1))
                 return true;
         if(!outOfBound(y, x, n))
-            if((map[y][x] ^ 2) > map[y][x])
+            if(isBo(y, x))
                 return true;
         if(!outOfBound(y-1, x, n))
-            if((map[y-1][x] ^ 1) > map[y-1][x])
-                return true;
+            return isGi(y-1, x);
         return false;
     }
+
+    private boolean isGi(int y, int x){
+        return map[y][x] > 0 && (map[y][x] ^ 1) < map[y][x];
+    }
+
+    private boolean isBo(int y, int x){
+        return map[y][x] > 0 && (map[y][x] ^ 2 ) < map[y][x];
+    }
+
     private boolean outOfBound(int y, int x, int n){
-        return y<0||y>n||x<0||x>n;
+        return y < 0 || y > n || x < 0 || x > n;
     }
 }
