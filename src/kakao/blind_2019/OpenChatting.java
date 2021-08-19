@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 
 /*
- * 카카오 2020 블라인드 채용 _ 오픈채팅방
+ * 카카오 2019 블라인드 채용 _ 오픈채팅방
  * 알고리즘 : 단순 구현
  * 난이도 : 2
  * link : https://programmers.co.kr/learn/courses/30/lessons/42888
